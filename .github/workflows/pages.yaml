@@ -1,3 +1,4 @@
+
 name: deploy-github-page
 
 on:
@@ -6,38 +7,54 @@ on:
   pull_request:
     branches: [main]
 
-permissions:
-  contents: write
-
 jobs:
   build-web:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Install rust toolchain
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
+
       - name: Install Dependencies
-        run: sudo apt-get update; sudo apt-get install g++ pkg-config libx11-dev libasound2-dev libudev-dev libxkbcommon-x11-0 libwayland-dev
+        run: |
+          sudo apt-get update && \
+          sudo apt-get install -y --no-install-recommends \
+            g++ pkg-config build-essential \
+            libx11-dev libasound2-dev libudev-dev \
+            libxkbcommon-x11-dev libxkbcommon-dev libwayland-dev
+
       - name: Install trunk
-        uses: jetli/trunk-action@v0.4.0
+        uses: jetli/trunk-action@v0.5.1
         with:
           version: 'latest'
+
       - name: Add wasm target
-        run: |
-          rustup target add wasm32-unknown-unknown
+        run: rustup target add wasm32-unknown-unknown
+
       - name: Build Release
-        run: |
-          trunk build --release
-      - name: optimize Wasm
+        run: trunk build --release
+
+      - name: Optimize Wasm
         uses: NiklasEi/wasm-opt-action@v2
         with:
           file: dist/*.wasm
+          optimize_all: true
+
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4.2.5
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           branch: gh-pages
           folder: dist
