@@ -31,8 +31,9 @@ const CAKE_ATLAS_SIZE: usize = 10;
 const PLATE_ATLAS_INDEX: usize = 10;
 const PICKLE_MEW_ATLAS_INDEX: usize = 70;
 
-const CAKE_SCALE: Vec3 = Vec3::splat(20.);
-const AMOGUS_SCALE: Vec3 = Vec3::splat(3.5);
+const CAKE_SCALE: Vec3 = Vec3::splat(15.);
+const AMOGUS_SCALE: Vec3 = Vec3::splat(2.);
+const PICKLE_MEW_SCALE: Vec3 = Vec3::splat(2.);
 
 fn setup(
     mut commands: Commands,
@@ -56,7 +57,7 @@ fn setup(
                     TextureAtlas::from(assets.texture_atlas.clone())
                         .with_index(PICKLE_MEW_ATLAS_INDEX),
                 ),
-                Transform::from_xyz(-300., -300., 1.),
+                Transform::from_xyz(-300., -300., 1.).with_scale(PICKLE_MEW_SCALE),
                 OnCakeScreen,
                 PickleMew,
                 Pickable::default(),
@@ -91,11 +92,11 @@ fn spawn_amogi(
     assets: Res<Assets>,
     mut rng: Single<&mut WyRand, With<GlobalRng>>,
 ) {
-    spawn_amogus::<Amogus1>(&mut commands, &mut rng, &assets, Vec2::new(140., 120.));
-    spawn_amogus::<Amogus2>(&mut commands, &mut rng, &assets, Vec2::new(-160., 110.));
-    spawn_amogus::<Amogus3>(&mut commands, &mut rng, &assets, Vec2::new(80., 90.));
-    spawn_amogus::<Amogus4>(&mut commands, &mut rng, &assets, Vec2::new(-80., 100.));
-    spawn_amogus::<Amogus5>(&mut commands, &mut rng, &assets, Vec2::new(0., 140.));
+    spawn_amogus::<Amogus1>(&mut commands, &mut rng, &assets, Vec2::new(95., 80.));
+    spawn_amogus::<Amogus2>(&mut commands, &mut rng, &assets, Vec2::new(-105., 75.));
+    spawn_amogus::<Amogus3>(&mut commands, &mut rng, &assets, Vec2::new(55., 60.));
+    spawn_amogus::<Amogus4>(&mut commands, &mut rng, &assets, Vec2::new(-55., 65.));
+    spawn_amogus::<Amogus5>(&mut commands, &mut rng, &assets, Vec2::new(0., 95.));
 }
 
 fn spawn_amogus<A: Amogus + Component>(

@@ -143,8 +143,8 @@ fn setup_gamba(mut commands: Commands) {
                 Node {
                     align_items: AlignItems::Center,
                     justify_content: JustifyContent::Center,
-                    width: Val::Percent(10.),
-                    height: Val::Percent(10.),
+                    width: Val::Px(48.),
+                    height: Val::Px(48.),
                     ..default()
                 },
                 BackgroundColor(Color::srgb_u8(128, 0, 0)),
@@ -170,8 +170,8 @@ fn setup_gamba(mut commands: Commands) {
                 Node {
                     align_items: AlignItems::Center,
                     justify_content: JustifyContent::Center,
-                    width: Val::Percent(10.),
-                    height: Val::Percent(10.),
+                    width: Val::Px(48.),
+                    height: Val::Px(48.),
                     ..default()
                 },
                 BackgroundColor(Color::srgb_u8(0, 128, 0)),
@@ -204,8 +204,8 @@ fn setup_gamba(mut commands: Commands) {
                 Node {
                     align_items: AlignItems::Center,
                     justify_content: JustifyContent::Center,
-                    width: Val::Percent(10.),
-                    height: Val::Percent(10.),
+                    width: Val::Px(96.),
+                    height: Val::Px(48.),
                     ..default()
                 },
                 BackgroundColor(Color::srgb_u8(128, 128, 128)),
@@ -230,8 +230,8 @@ fn setup_gamba(mut commands: Commands) {
                 Node {
                     align_items: AlignItems::Center,
                     justify_content: JustifyContent::Center,
-                    width: Val::Percent(10.),
-                    height: Val::Percent(10.),
+                    width: Val::Px(96.),
+                    height: Val::Px(48.),
                     ..default()
                 },
                 BackgroundColor(Color::srgb_u8(128, 128, 128)),

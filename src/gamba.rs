@@ -38,14 +38,14 @@ impl Plugin for GambaPlugin {
 #[derive(Component)]
 struct OnGambaScreen;
 
-const SUGAR_CANE_SCALE: Vec3 = Vec3::splat(2.);
-const SUGAR_CANE_SIZE: f32 = 64.;
+const SUGAR_CANE_SCALE: Vec3 = Vec3::splat(1.5);
+const SUGAR_CANE_SIZE: f32 = 42.666;
 const SUGAR_CANE_INDEX: usize = 50;
 const SUGAR_CANE_VARIANTS: usize = 4;
 const SUGAR_CANE_COUNT: usize = 6;
 const SIGN_INDEX: usize = 60;
 const POND_SCALE: Vec3 = Vec3::splat(10.);
-const POND_POS: Vec2 = Vec2::new(0., -200.);
+const POND_POS: Vec2 = Vec2::new(0., -180.);
 const POND_WATER_INDEX: usize = 0;
 const POND_LILY_INDEX: usize = 2;
 
