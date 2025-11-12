@@ -36,6 +36,7 @@ const SUGAR_CANE_SIZE: f32 = 64.;
 const SUGAR_CANE_INDEX: usize = 50;
 const SUGAR_CANE_VARIANTS: usize = 4;
 const SUGAR_CANE_COUNT: usize = 6;
+const SIGN_INDEX: usize = 60;
 
 #[derive(Resource)]
 pub struct SugarCaneHeight {
@@ -96,6 +97,15 @@ fn setup(
         Transform::from_xyz(0., -3200. - SUGAR_CANE_SIZE / 2., 0.).with_scale(Vec3::splat(6400.)),
     ));
 
+    commands.spawn((
+        Sprite::from_atlas_image(
+            assets.textures.clone(),
+            TextureAtlas::from(assets.texture_atlas.clone()).with_index(SIGN_INDEX),
+        ),
+        OnGambaScreen,
+        Transform::from_scale(SUGAR_CANE_SCALE),
+    ));
+
     (0..SUGAR_CANE_COUNT).for_each(|i| {
         spawn_sugar_cane(
             &mut commands,
@@ -115,7 +125,7 @@ fn setup(
             i,
             0,
             Side::Right,
-        );
+        )
     });
 }
 

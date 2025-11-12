@@ -9,4 +9,6 @@ pub struct Assets {
     pub textures: Handle<Image>,
     #[asset(path = "eating_sound.ogg")]
     pub eating_sound: Handle<AudioSource>,
+    #[asset(path = "pickle_mew.ogg")]
+    pub pickle_mew: Handle<AudioSource>,
 }

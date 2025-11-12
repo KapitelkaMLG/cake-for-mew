@@ -29,6 +29,7 @@ struct OnCakeScreen;
 const CAKE_ATLAS_INDEX: usize = 0;
 const CAKE_ATLAS_SIZE: usize = 10;
 const PLATE_ATLAS_INDEX: usize = 10;
+const PICKLE_MEW_ATLAS_INDEX: usize = 70;
 
 const CAKE_SCALE: Vec3 = Vec3::splat(20.);
 const AMOGUS_SCALE: Vec3 = Vec3::splat(3.5);
@@ -38,12 +39,29 @@ fn setup(
     assets: Res<Assets>,
     mut light_query: Query<&mut Light2d, With<Camera>>,
     mut camera_transform: Single<&mut Transform, With<Camera>>,
+    mut rng: Single<&mut WyRand, With<GlobalRng>>,
 ) {
     camera_transform.translation.y = 0.;
 
     commands.insert_resource(ClearColor(Color::srgb_u8(29, 29, 29)));
     for mut light in &mut light_query {
         light.ambient_light.brightness = 0.3;
+    }
+
+    if rng.next_u32().is_multiple_of(5) {
+        commands
+            .spawn((
+                Sprite::from_atlas_image(
+                    assets.textures.clone(),
+                    TextureAtlas::from(assets.texture_atlas.clone())
+                        .with_index(PICKLE_MEW_ATLAS_INDEX),
+                ),
+                Transform::from_xyz(-300., -300., 1.),
+                OnCakeScreen,
+                PickleMew,
+                Pickable::default(),
+            ))
+            .observe(click_pickle_mew);
     }
 
     commands.spawn((
@@ -204,6 +222,9 @@ struct Amogus4;
 #[derive(Component)]
 struct Amogus5;
 
+#[derive(Component)]
+struct PickleMew;
+
 trait Amogus {
     fn index() -> usize {
         20
@@ -274,5 +295,17 @@ impl Animation for SmokeAnimation {
 
     fn timer(&mut self) -> &mut Timer {
         &mut self.0
+    }
+}
+
+fn click_pickle_mew(
+    event: On<Pointer<Press>>,
+    mut commands: Commands,
+    assets: Res<Assets>,
+    mut query: Query<Entity, With<PickleMew>>,
+) {
+    if let Ok(entity) = query.get_mut(event.event_target()) {
+        commands.spawn(AudioPlayer(assets.pickle_mew.clone()));
+        commands.entity(entity).despawn();
     }
 }
