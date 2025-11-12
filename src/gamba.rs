@@ -1,9 +1,14 @@
 use bevy::prelude::*;
 use bevy_light_2d::prelude::*;
 use bevy_rand::prelude::*;
+use rand::seq::IteratorRandom;
 use rand_core::RngCore;
 
-use crate::{GameState, assets::Assets, util::despawn_all};
+use crate::{
+    GameState,
+    assets::Assets,
+    util::{Animation, animate, despawn_all},
+};
 
 pub struct GambaPlugin;
 
@@ -21,6 +26,8 @@ impl Plugin for GambaPlugin {
                     handle_bet_change_messages,
                     despawn_bankruptcy_messages,
                     move_camera,
+                    animate::<WaterSurfaceAnimation>,
+                    animate::<UnderwaterAnimation>,
                 )
                     .run_if(in_state(GameState::Gamba)),
             )
@@ -37,6 +44,10 @@ const SUGAR_CANE_INDEX: usize = 50;
 const SUGAR_CANE_VARIANTS: usize = 4;
 const SUGAR_CANE_COUNT: usize = 6;
 const SIGN_INDEX: usize = 60;
+const POND_SCALE: Vec3 = Vec3::splat(10.);
+const POND_POS: Vec2 = Vec2::new(0., -200.);
+const POND_WATER_INDEX: usize = 0;
+const POND_LILY_INDEX: usize = 2;
 
 #[derive(Resource)]
 pub struct SugarCaneHeight {
@@ -88,6 +99,7 @@ fn setup(
         right: [0, 0, 0, 0, 0, 0],
     });
 
+    // Grass
     commands.spawn((
         Sprite {
             color: Color::srgb_u8(0, 128, 29),
@@ -97,6 +109,7 @@ fn setup(
         Transform::from_xyz(0., -3200. - SUGAR_CANE_SIZE / 2., 0.).with_scale(Vec3::splat(6400.)),
     ));
 
+    // Sign
     commands.spawn((
         Sprite::from_atlas_image(
             assets.textures.clone(),
@@ -106,6 +119,50 @@ fn setup(
         Transform::from_scale(SUGAR_CANE_SCALE),
     ));
 
+    // Pond water
+    commands.spawn((
+        Sprite::from_atlas_image(
+            assets.pond.clone(),
+            TextureAtlas::from(assets.pond_atlas.clone()).with_index(POND_WATER_INDEX),
+        ),
+        OnGambaScreen,
+        Transform::from_translation(POND_POS.extend(1.)).with_scale(POND_SCALE),
+    ));
+
+    // Pond lilies
+    commands.spawn((
+        Sprite::from_atlas_image(
+            assets.pond.clone(),
+            TextureAtlas::from(assets.pond_atlas.clone()).with_index(POND_LILY_INDEX),
+        ),
+        OnGambaScreen,
+        Transform::from_translation(POND_POS.extend(4.)).with_scale(POND_SCALE),
+    ));
+
+    // Pond water surface
+    commands.spawn((
+        Sprite::from_atlas_image(
+            assets.pond.clone(),
+            TextureAtlas::from(assets.pond_atlas.clone())
+                .with_index(WaterSurfaceAnimation::index()),
+        ),
+        OnGambaScreen,
+        Transform::from_translation(POND_POS.extend(3.)).with_scale(POND_SCALE),
+        WaterSurfaceAnimation(Timer::from_seconds(2., TimerMode::Repeating)),
+    ));
+
+    // Pond underwater
+    commands.spawn((
+        Sprite::from_atlas_image(
+            assets.pond.clone(),
+            TextureAtlas::from(assets.pond_atlas.clone()).with_index(UnderwaterAnimation::index()),
+        ),
+        OnGambaScreen,
+        Transform::from_translation(POND_POS.extend(2.)).with_scale(POND_SCALE),
+        UnderwaterAnimation(Timer::from_seconds(3., TimerMode::Repeating)),
+    ));
+
+    // Sugar cane
     (0..SUGAR_CANE_COUNT).for_each(|i| {
         spawn_sugar_cane(
             &mut commands,
@@ -167,15 +224,38 @@ fn handle_bet_messages(
         } else {
             Side::Right
         };
+        let sound_effects;
         if msg.0 == choice {
             score.0 += bet.0;
+            sound_effects = vec![&assets.win1, &assets.win2, &assets.win3];
         } else {
             score.0 -= bet.0;
             if score.0 == 0 {
                 declare_bankruptcy(&mut commands, &mut rng, &mut score);
+                sound_effects = vec![
+                    &assets.bankrupt1,
+                    &assets.bankrupt2,
+                    &assets.bankrupt3,
+                    &assets.bankrupt4,
+                ];
+            } else {
+                sound_effects = vec![
+                    &assets.loss1,
+                    &assets.loss2,
+                    &assets.loss3,
+                    &assets.loss4,
+                    &assets.loss5,
+                    &assets.loss6,
+                    &assets.loss7,
+                    &assets.loss8,
+                    &assets.loss9,
+                ];
             }
             bet.0 = bet.0.min(score.0);
         }
+        commands.spawn(AudioPlayer::new(
+            (*sound_effects.iter().choose(&mut rng).unwrap()).clone(),
+        ));
         let index = rng.next_u32() as usize % SUGAR_CANE_COUNT;
         camera_move_state.start = camera_transform.translation.y;
         camera_move_state.timer = Timer::from_seconds(2., TimerMode::Once);
@@ -314,5 +394,39 @@ fn move_camera(
         for mut transform in &mut camera_query {
             transform.translation.y = state.start.lerp(state.target, state.timer.fraction());
         }
+    }
+}
+
+#[derive(Component)]
+struct WaterSurfaceAnimation(Timer);
+
+#[derive(Component)]
+struct UnderwaterAnimation(Timer);
+
+impl Animation for WaterSurfaceAnimation {
+    fn index() -> usize {
+        6
+    }
+
+    fn size() -> usize {
+        2
+    }
+
+    fn timer(&mut self) -> &mut Timer {
+        &mut self.0
+    }
+}
+
+impl Animation for UnderwaterAnimation {
+    fn index() -> usize {
+        4
+    }
+
+    fn size() -> usize {
+        2
+    }
+
+    fn timer(&mut self) -> &mut Timer {
+        &mut self.0
     }
 }
